@@ -18,7 +18,7 @@
             @keydown.enter="handleKeydown"
             @keydown.up.prevent="handleKeydown"
             @keydown.down.prevent="handleKeydown"
-            @keydown.tab="handleKeydown"
+            @keydown.tab="onClickOutside"
             @keydown.delete="handleKeydown"
 
 
@@ -80,11 +80,9 @@
     import Locale from '../../mixins/locale';
     import SelectHead from './select-head.vue';
     import FunctionalOptions from './functional-options.vue';
-
     const prefixCls = 'ivu-select';
     const optionRegexp = /^i-option$|^Option$/i;
     const optionGroupRegexp = /option-?group/i;
-
     const findChild = (instance, checkFn) => {
         let match = checkFn(instance);
         if (match) return instance;
@@ -94,7 +92,6 @@
             if (match) return match;
         }
     };
-
     const findOptionsInVNode = (node) => {
         const opts = node.componentOptions;
         if (opts && opts.tag.match(optionRegexp)) return [node];
@@ -105,11 +102,9 @@
         ).filter(Boolean);
         return options.length > 0 ? options : [];
     };
-
     const extractOptions = (options) => options.reduce((options, slotEntry) => {
         return options.concat(findOptionsInVNode(slotEntry));
     }, []);
-
     const applyProp = (node, propName, value) => {
         return {
             ...node,
@@ -122,22 +117,17 @@
             }
         };
     };
-
     const getNestedProperty = (obj, path) => {
         const keys = path.split('.');
         return keys.reduce((o, key) => o && o[key] || null, obj);
     };
-
     const getOptionLabel = option => {
         if (option.componentOptions.propsData.label) return option.componentOptions.propsData.label;
         const textContent = (option.componentOptions.children || []).reduce((str, child) => str + (child.text || ''), '');
         const innerHTML = getNestedProperty(option, 'data.domProps.innerHTML');
         return textContent || (typeof innerHTML === 'string' ? innerHTML : '');
     };
-
-
     const ANIMATION_TIMEOUT = 300;
-
     export default {
         name: 'iSelect',
         mixins: [ Emitter, Locale ],
@@ -221,7 +211,6 @@
         },
         mounted(){
             this.$on('on-select-selected', this.onOptionClick);
-
             // set the initial values if there are any
             if (!this.remote && this.selectOptions.length > 0){
                 this.values = this.getInitialValue().map(value => {
@@ -229,13 +218,11 @@
                     return this.getOptionData(value);
                 }).filter(Boolean);
             }
-
             if (this.values.length > 0 && this.selectOptions.length === 0){
                 this.hasExpectedValue = this.values;
             }
         },
         data () {
-
             return {
                 prefixCls: prefixCls,
                 values: [],
@@ -308,9 +295,7 @@
                 let status = true;
                 const noOptions = !this.selectOptions || this.selectOptions.length === 0;
                 if (!this.loading && this.remote && this.query === '' && noOptions) status = false;
-
                 if (this.autoComplete && noOptions) status = false;
-
                 return this.visible && status;
             },
             showNotFoundLabel () {
@@ -344,7 +329,6 @@
                     };
                     const autoCompleteOptions = extractOptions(slotOptions);
                     const selectedSlotOption = autoCompleteOptions[currentIndex];
-
                     return slotOptions.map(node => {
                         if (node === selectedSlotOption) return applyProp(node, 'isFocused', true);
                         return copyChildren(node, (child) => {
@@ -353,38 +337,31 @@
                         });
                     });
                 }
-
                 for (let option of slotOptions) {
-
                     const cOptions = option.componentOptions;
                     if (!cOptions) continue;
                     if (cOptions.tag.match(optionGroupRegexp)){
                         let children = cOptions.children;
-
                         // remove filtered children
                         if (this.filterable){
                             children = children.filter(
                                 ({componentOptions}) => this.validateOption(componentOptions)
                             );
                         }
-
                         cOptions.children = children.map(opt => {
                             optionCounter = optionCounter + 1;
                             return this.processOption(opt, selectedValues, optionCounter === currentIndex);
                         });
-
                         // keep the group if it still has children
                         if (cOptions.children.length > 0) selectOptions.push({...option});
                     } else {
                         // ignore option if not passing filter
                         const optionPassesFilter = this.filterable ? this.validateOption(cOptions) : option;
                         if (!optionPassesFilter) continue;
-
                         optionCounter = optionCounter + 1;
                         selectOptions.push(this.processOption(option, selectedValues, optionCounter === currentIndex));
                     }
                 }
-
                 return selectOptions;
             },
             flatOptions(){
@@ -435,14 +412,12 @@
                 const optionValue = option.componentOptions.propsData.value;
                 const disabled = option.componentOptions.propsData.disabled;
                 const isSelected = values.includes(optionValue);
-
                 const propsData = {
                     ...option.componentOptions.propsData,
                     selected: isSelected,
                     isFocused: isFocused,
                     disabled: typeof disabled === 'undefined' ? false : disabled !== false,
                 };
-
                 return {
                     ...option,
                     componentOptions: {
@@ -451,10 +426,8 @@
                     }
                 };
             },
-
             validateOption({children, elm, propsData}){
                 if (this.queryStringMatchesSelectedOption) return true;
-
                 const value = propsData.value;
                 const label = propsData.label || '';
                 const textContent = (elm && elm.textContent) || (children || []).reduce((str, node) => {
@@ -465,12 +438,10 @@
                 const query = this.query.toLowerCase().trim();
                 return stringValues.toLowerCase().includes(query);
             },
-
             toggleMenu (e, force) {
                 if (this.disabled || this.autoComplete) {
                     return false;
                 }
-
                 this.visible = typeof force !== 'undefined' ? force : !this.visible;
                 if (this.visible){
                     this.dropDownWidth = this.$el.getBoundingClientRect().width;
@@ -479,6 +450,9 @@
             },
             hideMenu () {
                 this.toggleMenu(null, false);
+                if(this.autoComplete) {
+                    this.visible = false;
+                }
                 setTimeout(() => this.unchangedQuery = true, ANIMATION_TIMEOUT);
             },
             onClickOutside(event){
@@ -487,15 +461,12 @@
                         event.preventDefault();
                         return;
                     }
-
                     if (this.transfer) {
                         const {$el} = this.$refs.dropdown;
                         if ($el === event.target || $el.contains(event.target)) {
                             return;
                         }
                     }
-
-
                     if (this.filterable) {
                         const input = this.$el.querySelector('input[type="text"]');
                         this.caretPosition = input.selectionStart;
@@ -504,11 +475,14 @@
                             input.setSelectionRange(caretPosition, caretPosition);
                         });
                     }
-
-                    if (!this.autoComplete) event.stopPropagation();
                     event.preventDefault();
-                    this.hideMenu();
                     this.isFocused = true;
+                    if (this.autoComplete) {
+                        this.visible = false;
+                    } else {
+                        event.stopPropagation();
+                        this.hideMenu();
+                    }
                 } else {
                     this.caretPosition = -1;
                     this.isFocused = false;
@@ -524,13 +498,11 @@
                 if (e.key === 'Backspace'){
                     return; // so we don't call preventDefault
                 }
-
                 if (this.visible) {
                     e.preventDefault();
                     if (e.key === 'Tab'){
-                        e.stopPropagation();
+                        //e.stopPropagation();
                     }
-
                     // Esc slide-up
                     if (e.key === 'Escape') {
                         e.stopPropagation();
@@ -555,16 +527,12 @@
                     const keysThatCanOpenSelect = ['ArrowUp', 'ArrowDown'];
                     if (keysThatCanOpenSelect.includes(e.key)) this.toggleMenu(null, true);
                 }
-
-
             },
             navigateOptions(direction){
                 const optionsLength = this.flatOptions.length - 1;
-
                 let index = this.focusIndex + direction;
                 if (index < 0) index = optionsLength;
                 if (index > optionsLength) index = 0;
-
                 // find nearest option in case of disabled options in between
                 if (direction > 0){
                     let nearestActiveOption = -1;
@@ -583,23 +551,19 @@
                     }
                     index = nearestActiveOption;
                 }
-
                 this.focusIndex = index;
             },
             onOptionClick(option) {
                 if (this.multiple){
-
                     // keep the query for remote select
                     if (this.remote) this.lastRemoteQuery = this.lastRemoteQuery || this.query;
                     else this.lastRemoteQuery = '';
-
                     const valueIsSelected = this.values.find(({value}) => value === option.value);
                     if (valueIsSelected){
                         this.values = this.values.filter(({value}) => value !== option.value);
                     } else {
                         this.values = this.values.concat(option);
                     }
-
                     this.isFocused = true; // so we put back focus after clicking with mouse on option elements
                 } else {
                     this.query = String(option.label).trim();
@@ -607,12 +571,10 @@
                     this.lastRemoteQuery = '';
                     this.hideMenu();
                 }
-
                 this.focusIndex = this.flatOptions.findIndex((opt) => {
                     if (!opt || !opt.componentOptions) return false;
                     return opt.componentOptions.propsData.value === option.value;
                 });
-
                 if (this.filterable){
                     const inputField = this.$el.querySelector('input[type="text"]');
                     if (!this.autoComplete) this.$nextTick(() => inputField.focus());
@@ -637,7 +599,6 @@
         watch: {
             value(value){
                 const {getInitialValue, getOptionData, publicValue} = this;
-
                 if (value === '') this.values = [];
                 else if (JSON.stringify(value) !== JSON.stringify(publicValue)) {
                     this.$nextTick(() => this.values = getInitialValue().map(getOptionData).filter(Boolean));
@@ -663,7 +624,6 @@
                 const hasValidQuery = query !== '' && (query !== lastRemoteQuery || !lastRemoteQuery);
                 const shouldCallRemoteMethod = remoteMethod && hasValidQuery && !this.preventRemoteCall;
                 this.preventRemoteCall = false; // remove the flag
-
                 if (shouldCallRemoteMethod){
                     this.focusIndex = -1;
                     const promise = this.remoteMethod(query);
@@ -684,7 +644,6 @@
             isFocused(focused){
                 const el = this.filterable ? this.$el.querySelector('input[type="text"]') : this.$el;
                 el[this.isFocused ? 'focus' : 'blur']();
-
                 // restore query value in filterable single selects
                 const [selectedOption] = this.values;
                 if (selectedOption && this.filterable && !this.multiple && !focused){
@@ -702,7 +661,6 @@
                 const optionInstance = findChild(this, ({$options}) => {
                     return $options.componentName === 'select-item' && $options.propsData.value === optionValue;
                 });
-
                 let bottomOverflowDistance = optionInstance.$el.getBoundingClientRect().bottom - this.$refs.dropdown.$el.getBoundingClientRect().bottom;
                 let topOverflowDistance = optionInstance.$el.getBoundingClientRect().top - this.$refs.dropdown.$el.getBoundingClientRect().top;
                 if (bottomOverflowDistance > 0) {
@@ -720,7 +678,6 @@
                     this.values = this.values.map(this.getOptionData).filter(Boolean);
                     this.hasExpectedValue = false;
                 }
-
                 if (this.slotOptions && this.slotOptions.length === 0){
                     this.query = '';
                 }
