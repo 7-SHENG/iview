@@ -1,9 +1,17 @@
+<style>
+    .mouse-in-show .ivu-icon-ios-close{
+        display: none;
+    }
+    .mouse-in-show:hover .ivu-icon-ios-close{
+        display: block;
+    }
+</style>
 <template>
     <div
         tabindex="0"
         @keydown.down="handleFocus"
         :class="classes"
-        v-clickoutside="handleClose">
+        v-clickoutside="handleClose" class="mouse-in-show">
         <div
             :class="selectionCls"
             ref="reference"
@@ -32,7 +40,7 @@
                     @keydown.delete="handleInputDelete"
                     ref="input">
                 <Icon type="ios-close" :class="[prefixCls + '-arrow']" v-show="showCloseIcon" @click.native.stop="clearSingleSelect"></Icon>
-                <Icon type="arrow-down-b" :class="[prefixCls + '-arrow']" v-if="!remote"></Icon>
+                <Icon type="arrow-down-b" :class="[prefixCls + '-arrow']" v-show="!showCloseIcon" v-if="!remote"></Icon>
             </slot>
         </div>
         <transition name="transition-drop">
