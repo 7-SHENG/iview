@@ -3,16 +3,16 @@
         <transition :name="transitionNames[1]">
             <div :class="maskClasses" v-show="visible" @click="mask"></div>
         </transition>
-        <div :class="wrapClasses" @click="handleWrapClick">
+        <div :class="wrapClasses" @click="handleWrapClick" @mousemove="mouseMove" @mouseup="mouseUp">
             <transition :name="transitionNames[0]" @after-leave="animationFinish">
                 <div :class="classes" :style="mainStyles" v-show="visible">
-                    <div :class="[prefixCls + '-content']">
+                    <div :class="[prefixCls + '-content']" :style="{left: currentPosition.x + 'px', top: currentPosition.y + 'px'}">
                         <a :class="[prefixCls + '-close']" v-if="closable" @click="close">
                             <slot name="close">
                                 <Icon type="ios-close-empty"></Icon>
                             </slot>
                         </a>
-                        <div :class="[prefixCls + '-header']" v-if="showHead"><slot name="header"><div :class="[prefixCls + '-header-inner']">{{ title }}</div></slot></div>
+                        <div :class="[prefixCls + '-header']" ondragstart="return false;" @mousedown="mouseDown" @mouseup="mouseUp" v-if="showHead"><slot name="header"><div :class="[prefixCls + '-header-inner']">{{ title }}</div></slot></div>
                         <div :class="[prefixCls + '-body']"><slot></slot></div>
                         <div :class="[prefixCls + '-footer']" v-if="!footerHide">
                             <slot name="footer">
@@ -103,7 +103,20 @@
                 wrapShow: false,
                 showHead: true,
                 buttonLoading: false,
-                visible: this.value
+                visible: this.value,
+                position: {
+                    x: 0,
+                    y: 0
+                },
+                startPosition: {
+                    x: 0,
+                    y: 0
+                },
+                currentPosition: {
+                    x: 0,
+                    y: 0
+                },
+                moveFlag: false
             };
         },
         computed: {
@@ -152,6 +165,26 @@
             }
         },
         methods: {
+            mouseDown(e) {
+                this.startPosition.x = e.screenX;
+                this.startPosition.y = e.screenY;
+                this.moveFlag = true;
+            },
+            mouseMove(e) {
+                if(this.moveFlag) {
+                    this.currentPosition.x = this.position.x + (e.screenX - this.startPosition.x);
+                    this.currentPosition.y = this.position.y + (e.screenY - this.startPosition.y);
+                }
+            },
+            mouseUp(e) {
+                if(this.moveFlag) {
+                    this.moveFlag = false;
+                    this.currentPosition.x = this.position.x + (e.screenX - this.startPosition.x);
+                    this.currentPosition.y = this.position.y + (e.screenY - this.startPosition.y);
+                    this.position.x = this.currentPosition.x;
+                    this.position.y = this.currentPosition.y;
+                }
+            },
             close () {
                 this.visible = false;
                 this.$emit('input', false);
