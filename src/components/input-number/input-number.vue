@@ -16,6 +16,7 @@
         </div>
         <div :class="inputWrapClasses">
             <input
+                ref="numberInput"
                 :id="elementId"
                 :class="inputClasses"
                 :disabled="disabled"
@@ -248,8 +249,7 @@
             },
             setValue (val) {
                 // 如果 step 是小数，且没有设置 precision，是有问题的
-                if (val && !isNaN(this.precision)) val = Number(Number(val).toFixed(this.precision));
-
+                if (val && !isNaN(this.precision)) val = parseInt(Number(val)*Math.pow(10,this.precision))/Math.pow(10,this.precision);
                 this.$nextTick(() => {
                     this.currentValue = val;
                     this.$emit('input', val);
@@ -275,11 +275,12 @@
                 }
             },
             change (event) {
+                let startPosition = this.getCursorPosition(this.$refs.numberInput);
                 let val = event.target.value.trim();
                 if (this.parser) {
                     val = this.parser(val);
                 }
-
+                if (event.type == 'input' && RegExp('^-?\\d+$').test(val)) return;
                 if (event.type == 'input' && val.match(/^\-?\.?$|\.$/)) return; // prevent fire early if decimal. If no more input the change event will fire later
 
                 const {min, max} = this;
@@ -308,6 +309,7 @@
                 } else {
                     event.target.value = this.currentValue;
                 }
+                this.setCursorPosition(this.$refs.numberInput, startPosition);
             },
             changeVal (val) {
                 val = Number(val);
@@ -320,6 +322,37 @@
                     this.upDisabled = true;
                     this.downDisabled = true;
                 }
+            },
+            getCursorPosition(elem){
+                let cursurPosition=-1;
+                if(elem.selectionStart){//非IE浏览器
+                    cursurPosition= elem.selectionStart;
+                }else{//IE
+                    let range = document.selection.createRange();
+                    range.moveStart('character',-elem.value.length);
+                    cursurPosition=range.text.length;
+                }
+                return cursurPosition;
+            },
+            setCursorPosition(elem, index) {
+                let val = elem.value;
+                let len = val.length;
+
+                // 超过文本长度直接返回
+                if (len < index) return
+                setTimeout(function() {
+                    elem.focus()
+                    if (elem.setSelectionRange) { // 标准浏览器
+                        elem.setSelectionRange(index, index);
+                    } else { // IE9-
+                        let range = elem.createTextRange();
+                        range.moveStart('character', -len);
+                        range.moveEnd('character', -len);
+                        range.moveStart('character', index);
+                        range.moveEnd('character', 0);
+                        range.select();
+                    }
+                }, 5);
             }
         },
         mounted () {
