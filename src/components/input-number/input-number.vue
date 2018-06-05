@@ -275,12 +275,18 @@
                 }
             },
             change (event) {
-                let startPosition = this.getCursorPosition(this.$refs.numberInput);
                 let val = event.target.value.trim();
+                let cursorJump = true;
+                let startPosition;
+                if(val === null || val === '') {
+                    cursorJump = false;
+                } else {
+                    startPosition = this.getCursorPosition(this.$refs.numberInput);
+                }
                 if (this.parser) {
                     val = this.parser(val);
                 }
-                if (event.type == 'input' && RegExp('^-?\\d+$').test(val)) return;
+                if (event.type == 'input' && RegExp('^-?\\d+$').test(val) && Number(val) <= this.max) return;
                 if (event.type == 'input' && val.match(/^\-?\.?$|\.$/)) return; // prevent fire early if decimal. If no more input the change event will fire later
 
                 const {min, max} = this;
@@ -309,7 +315,10 @@
                 } else {
                     event.target.value = this.currentValue;
                 }
-                this.setCursorPosition(this.$refs.numberInput, startPosition);
+                if(cursorJump) {
+                    this.setCursorPosition(this.$refs.numberInput, startPosition);
+                }
+
             },
             changeVal (val) {
                 val = Number(val);
@@ -324,15 +333,14 @@
                 }
             },
             getCursorPosition(elem){
-                let cursurPosition=-1;
-                if(elem.selectionStart){//非IE浏览器
-                    cursurPosition= elem.selectionStart;
-                }else{//IE
+                if (elem.selectionStart !== undefined) {
+                    return elem.selectionStart;
+                } else { //IE 6,7,8
                     let range = document.selection.createRange();
-                    range.moveStart('character',-elem.value.length);
-                    cursurPosition=range.text.length;
+                    range.moveStart("character", -elem.value.length);
+                    let len = range.text.length;
+                    return len;
                 }
-                return cursurPosition;
             },
             setCursorPosition(elem, index) {
                 let val = elem.value;
