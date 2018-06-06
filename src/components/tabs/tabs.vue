@@ -1,3 +1,12 @@
+<style scoped>
+    .ivu-tabs-close-style{
+        margin-right: 0 !important;
+        text-align: center;
+        font-size: 14px;
+        vertical-align: middle;
+        line-height: 14px;
+    }
+</style>
 <template>
     <div :class="classes">
         <div :class="[prefixCls + '-bar']">
@@ -20,6 +29,7 @@
                                 <Render v-if="item.labelType === 'function'" :render="item.label"></Render>
                                 <template v-else>{{ item.label }}</template>
                                 <Icon v-if="showClose(item)" type="ios-close-empty" @click.native.stop="handleRemove(index)"></Icon>
+                                <Icon v-if="type !== 'card' && item.closable" type="ios-close-empty" class="ivu-tabs-close-style" @click.native.stop="onClosable(item.name)"></Icon>
                             </div>
                         </div>
                     </div>
@@ -164,6 +174,9 @@
             }
         },
         methods: {
+            onClosable(name) {
+                this.$emit('on-close', name);
+            },
             getTabs () {
                 return this.$children.filter(item => item.$options.name === 'TabPane');
             },
