@@ -286,7 +286,12 @@
                 if (this.parser) {
                     val = this.parser(val);
                 }
-                if (event.type == 'input' && RegExp('^-?\\d+$').test(val) && Number(val) <= this.max) return;
+                if (event.type == 'input' && RegExp('^-?\\d+$').test(val) && Number(val) <= this.max) {
+                    val = Number(val);
+                    event.target.value = val;
+                    this.setValue(val);
+                    return;
+                }
                 if (event.type == 'input' && val.match(/^\-?\.?$|\.$/)) return; // prevent fire early if decimal. If no more input the change event will fire later
 
                 const {min, max} = this;
