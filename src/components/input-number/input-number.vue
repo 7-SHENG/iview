@@ -247,9 +247,9 @@
                 }
                 this.setValue(val);
             },
-            setValue (val) {
+            setValue (val, isInt) {
                 // 如果 step 是小数，且没有设置 precision，是有问题的
-                if (val && !isNaN(this.precision)) val = parseInt(Number(val)*Math.pow(10,this.precision))/Math.pow(10,this.precision);
+                if (val && !isNaN(this.precision) && isInt === undefined) val = parseInt(Number(val)*Math.pow(10,this.precision))/Math.pow(10,this.precision);
                 this.$nextTick(() => {
                     this.currentValue = val;
                     this.$emit('input', val);
@@ -289,7 +289,6 @@
                 if (event.type == 'input' && RegExp('^-?\\d+$').test(val) && Number(val) <= this.max) {
                     val = Number(val);
                     event.target.value = val;
-                    this.setValue(val);
                     return;
                 }
                 if (event.type == 'input' && val.match(/^\-?\.?$|\.$/)) return; // prevent fire early if decimal. If no more input the change event will fire later
