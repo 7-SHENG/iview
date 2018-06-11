@@ -11,6 +11,7 @@
         tabindex="0"
         @keydown.down="handleFocus"
         :class="classes"
+        @keydown.tab="handleClose"
         v-clickoutside="handleClose" class="mouse-in-show">
         <div
             :class="selectionCls"
