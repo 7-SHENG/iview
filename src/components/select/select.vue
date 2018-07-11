@@ -12,7 +12,10 @@
         @keydown.down="handleFocus"
         :class="classes"
         @keydown.tab="handleClose"
-        v-clickoutside="handleClose" class="mouse-in-show">
+        @keyup.enter.stop="onEnter"
+        v-clickoutside="handleClose" class="mouse-in-show"
+        ref="select"
+    >
         <div
             :class="selectionCls"
             ref="reference"
@@ -39,6 +42,7 @@
                     @blur="handleBlur"
                     @keydown="resetInputState"
                     @keydown.delete="handleInputDelete"
+                    @keyup.enter.stop="onEnter"
                     ref="input">
                 <Icon type="ios-close" :class="[prefixCls + '-arrow']" v-show="showCloseIcon" @click.native.stop="clearSingleSelect"></Icon>
                 <Icon type="arrow-down-b" :class="[prefixCls + '-arrow']" v-show="!showCloseIcon" v-if="!remote"></Icon>
@@ -274,6 +278,27 @@
         },
         methods: {
             // open when focus on Select and press `down` key
+            handleEnter () {
+                this.$emit('on-enter');
+            },
+            onEnter (){
+                this.handleClose();
+                this.$nextTick(()=>{
+                    this.$emit('on-enter');
+                });
+            },
+            focus() {
+                if (this.disabled) {
+                    this.$emit('on-enter');
+                    return false;
+                }
+                if (this.filterable) {
+                    this.$refs.input.focus();
+                } else {
+                    this.$refs.select.focus();
+                }
+                this.toggleMenu();
+            },
             handleFocus () {
                 if (!this.visible) this.toggleMenu();
             },
