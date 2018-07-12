@@ -12,7 +12,6 @@
         @keydown.down="handleFocus"
         :class="classes"
         @keydown.tab="handleClose"
-        @keyup.enter.stop="onEnter"
         v-clickoutside="handleClose" class="mouse-in-show"
         ref="select"
     >
@@ -36,6 +35,7 @@
                     :disabled="disabled"
                     :class="[prefixCls + '-input']"
                     :placeholder="showPlaceholder ? localePlaceholder : ''"
+
                     :style="inputStyle"
                     autocomplete="off"
                     spellcheck="false"
@@ -282,6 +282,7 @@
                 this.$emit('on-enter');
             },
             onEnter (){
+                console.log('on select input')
                 this.handleClose();
                 this.$nextTick(()=>{
                     this.$emit('on-enter');
@@ -347,7 +348,6 @@
                         label: (child.label === undefined) ? child.$el.textContent : child.label
                     });
                     child.index = index++;
-
                     this.optionInstances.push(child);
                 });
 
@@ -534,6 +534,7 @@
                     if (keyCode === 27) {
                         e.preventDefault();
                         this.hideMenu();
+
                     }
                     // next
                     if (keyCode === 40) {
@@ -548,10 +549,14 @@
                     // enter
                     if (keyCode === 13) {
                         e.preventDefault();
-
                         this.findChild((child) => {
                             if (child.isFocus) {
                                 child.select();
+                                this.$nextTick(()=>{
+                                    setTimeout(() => {
+                                        this.$emit('on-enter');
+                                    }, 200);
+                                });
                             }
                         });
                     }

@@ -26,7 +26,7 @@
                     @keydown.native="handleKeydown"
                     @mouseenter.native="handleInputMouseenter"
                     @mouseleave.native="handleInputMouseleave"
-
+                    @keyup.enter.native="handleEnter"
                     :icon="iconType"
                 ></i-input>
             </slot>
@@ -275,6 +275,10 @@
             }
         },
         methods: {
+            handleEnter() {
+                this.handleClose();
+                this.$emit('on-enter');
+            },
             onSelectionModeChange(type){
                 if (type.match(/^date/)) type = 'date';
                 this.selectionMode = oneOf(type, ['year', 'month', 'date', 'time']) && type;
@@ -357,7 +361,7 @@
 
                 // open the panel
                 const arrows = [37, 38, 39, 40];
-                if (!this.visible && arrows.includes(keyCode)){
+                if (!this.visible && !this.disabled && !this.readonly && arrows.includes(keyCode)){
                     this.visible = true;
                     return;
                 }
@@ -372,28 +376,30 @@
 
                 // select date, "Enter" key
                 if (keyCode === 13){
-                    const timePickers = findComponentsDownward(this, 'TimeSpinner');
-                    if (timePickers.length > 0){
-                        const columnsPerPicker = timePickers[0].showSeconds ? 3 : 2;
-                        const pickerIndex = Math.floor(this.focusedTime.column / columnsPerPicker);
-                        const value = this.focusedTime.time[pickerIndex];
+                    if(this.visible) {
+                        const timePickers = findComponentsDownward(this, 'TimeSpinner');
+                        if (timePickers.length > 0){
+                            const columnsPerPicker = timePickers[0].showSeconds ? 3 : 2;
+                            const pickerIndex = Math.floor(this.focusedTime.column / columnsPerPicker);
+                            const value = this.focusedTime.time[pickerIndex];
 
-                        timePickers[pickerIndex].chooseValue(value);
-                        return;
-                    }
+                            timePickers[pickerIndex].chooseValue(value);
+                            return;
+                        }
 
-                    if (this.type.match(/range/)){
-                        this.$refs.pickerPanel.handleRangePick(this.focusedDate, 'date');
-                    } else {
-                        const panels = findComponentsDownward(this, 'PanelTable');
-                        const compareDate = (d) => {
-                            const sliceIndex = ['year', 'month', 'date'].indexOf((this.type)) + 1;
-                            return [d.getFullYear(), d.getMonth(), d.getDate()].slice(0, sliceIndex).join('-');
-                        };
-                        const dateIsValid = panels.find(({cells}) => {
-                            return cells.find(({date, disabled}) => compareDate(date) === compareDate(this.focusedDate) && !disabled);
-                        });
-                        if (dateIsValid) this.onPick(this.focusedDate, false, 'date');
+                        if (this.type.match(/range/)){
+                            this.$refs.pickerPanel.handleRangePick(this.focusedDate, 'date');
+                        } else {
+                            const panels = findComponentsDownward(this, 'PanelTable');
+                            const compareDate = (d) => {
+                                const sliceIndex = ['year', 'month', 'date'].indexOf((this.type)) + 1;
+                                return [d.getFullYear(), d.getMonth(), d.getDate()].slice(0, sliceIndex).join('-');
+                            };
+                            const dateIsValid = panels.find(({cells}) => {
+                                return cells.find(({date, disabled}) => compareDate(date) === compareDate(this.focusedDate) && !disabled);
+                            });
+                            if (dateIsValid) this.onPick(this.focusedDate, false, 'date');
+                        }
                     }
                 }
 
