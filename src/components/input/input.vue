@@ -29,7 +29,10 @@
                 @focus="handleFocus"
                 @blur="handleBlur"
                 @input="handleInput"
-                @change="handleChange">
+                @change="handleChange"
+                @mouseup="handleMouseup"
+                @mousedown="handleMousedown"
+            >
             <div :class="[prefixCls + '-group-append']" v-if="append" v-show="slotReady"><slot name="append"></slot></div>
         </template>
         <textarea
@@ -55,7 +58,10 @@
             @keydown="handleKeydown"
             @focus="handleFocus"
             @blur="handleBlur"
-            @input="handleInput">
+            @input="handleInput"
+            @mouseup="handleMouseup"
+            @mousedown="handleMousedown"
+        >
         </textarea>
     </div>
 </template>
@@ -188,6 +194,12 @@
             }
         },
         methods: {
+            handleMouseup () {
+                this.$emit('on-mouseup');
+            },
+            handleMousedown () {
+                this.$emit('on-mousedown');
+            },
             handleEnter (event) {
                 this.$emit('on-enter', event);
             },
