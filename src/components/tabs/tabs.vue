@@ -390,16 +390,19 @@
                 return false;
             },
             updateVisibility(index){
-                [...this.$refs.panes.children].forEach((el, i) => {
-                    if (index === i) {
-                        [...el.children].forEach(child => child.style.visibility = 'visible');
-                        if (this.captureFocus) setTimeout(() => focusFirst(el, el), transitionTime);
-                    } else {
-                        setTimeout(() => {
-                            [...el.children].forEach(child => child.style.visibility = 'hidden');
-                        }, transitionTime);
-                    }
-                });
+                if(!this.closable) {
+                    [...this.$refs.panes.children].forEach((el, i) => {
+                        if (index === i) {
+                            [...el.children].forEach(child => child.style.visibility = 'visible');
+                            if (this.captureFocus) setTimeout(() => focusFirst(el, el), transitionTime);
+                        } else {
+                            setTimeout(() => {
+                                [...el.children].forEach(child => child.style.visibility = 'hidden');
+                            }, transitionTime);
+                        }
+                    });
+                }
+
             }
         },
         watch: {
