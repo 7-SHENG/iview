@@ -355,9 +355,9 @@
                 let len = val.length;
 
                 // 超过文本长度直接返回
-                if (len < index) return
+                if (len < index || !this.focused) return
                 setTimeout(function() {
-                    elem.focus()
+                    // elem.focus()
                     if (elem.setSelectionRange) { // 标准浏览器
                         elem.setSelectionRange(index, index);
                     } else { // IE9-
@@ -380,6 +380,7 @@
             },
             currentValue (val) {
                 this.changeVal(val);
+                this.dispatch('FormItem', 'on-form-change', val);
             },
             min () {
                 this.changeVal(this.currentValue);
