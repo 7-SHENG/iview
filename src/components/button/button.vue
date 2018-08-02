@@ -1,5 +1,6 @@
 <template>
     <button
+        ref="button"
         :type="htmlType"
         :class="classes"
         :disabled="disabled"
@@ -71,6 +72,9 @@
         methods: {
             handleClick (event) {
                 this.$emit('click', event);
+            },
+            focus() {
+                this.$refs.button.focus();
             }
         },
         mounted () {

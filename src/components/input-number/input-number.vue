@@ -26,6 +26,7 @@
                 @focus="focus"
                 @blur="blur"
                 @keydown.stop="keyDown"
+                @keyup.enter.stop="handleEnter"
                 @input="change"
                 @mouseup="preventDefault"
                 @change="change"
@@ -264,10 +265,13 @@
             focus (event) {
                 this.focused = true;
                 this.$emit('on-focus', event);
+                this.$refs.numberInput.focus();
+                this.$refs.numberInput.select();
             },
             blur () {
                 this.focused = false;
                 this.$emit('on-blur');
+                this.$refs.numberInput.blur();
             },
             keyDown (e) {
                 if (e.keyCode === 38) {
@@ -276,7 +280,15 @@
                 } else if (e.keyCode === 40) {
                     e.preventDefault();
                     this.down(e);
+                } else if (e.keyCode === 9) {
+                    e.preventDefault(); // ignore original tab event
+                    this.$emit('on-tab', e);
                 }
+            },
+            // just enter keyup
+            handleEnter (e) {
+                e.preventDefault();
+                this.$emit('on-enter', e);
             },
             change (event) {
                 let val = event.target.value.trim();
