@@ -288,6 +288,9 @@
                     this.$emit('on-enter');
                 });
             },
+            updateDrop() {
+                this.broadcast('Drop', 'on-update-popper');
+            },
             focus() {
                 if (this.disabled) {
                     this.$emit('on-enter');
