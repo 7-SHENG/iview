@@ -282,7 +282,7 @@
                 this.$emit('on-enter');
             },
             onEnter (){
-                console.log('on select input')
+                console.log('input ')
                 this.handleClose();
                 this.$nextTick(()=>{
                     this.$emit('on-enter');
@@ -555,12 +555,13 @@
                         this.findChild((child) => {
                             if (child.isFocus) {
                                 child.select();
-                                this.$nextTick(()=>{
-                                    setTimeout(() => {
-                                        this.$emit('on-enter');
-                                    }, 200);
-                                });
                             }
+                        });
+                        this.hideMenu();
+                        this.$nextTick(()=>{
+                            setTimeout(()=>{
+                                this.$emit('on-enter');
+                            }, 200);
                         });
                     }
                 }
