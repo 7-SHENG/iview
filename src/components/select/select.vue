@@ -55,6 +55,7 @@
                 :placement="placement"
                 ref="dropdown"
                 :data-transfer="transfer"
+                :options-width="optionsWidth"
                 v-transfer-dom>
                 <ul v-show="notFoundShow" :class="[prefixCls + '-not-found']"><li>{{ localeNotFoundText }}</li></ul>
                 <ul v-show="(!notFound && !remote) || (remote && !loading && !notFound)" :class="[prefixCls + '-dropdown-list']"><slot></slot></ul>
@@ -158,6 +159,10 @@
             },
             elementId: {
                 type: String
+            },
+            optionsWidth: {
+                type: String,
+                type: null
             }
         },
         data () {

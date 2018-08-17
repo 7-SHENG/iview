@@ -16,6 +16,10 @@
             },
             className: {
                 type: String
+            },
+            optionsWidth: {
+                type: String,
+                default: null
             }
         },
         data () {
@@ -64,7 +68,11 @@
                 }
                 // set a height for parent is Modal and Select's width is 100%
                 if (this.$parent.$options.name === 'iSelect') {
-                    this.width = parseInt(getStyle(this.$parent.$el, 'width'));
+                    if(this.optionsWidth == null) {
+                        this.width = parseInt(getStyle(this.$parent.$el, 'width'));
+                    } else {
+                        this.width = this.optionsWidth;
+                    }
                 }
             },
             destroy () {
