@@ -68,10 +68,11 @@
                 }
                 // set a height for parent is Modal and Select's width is 100%
                 if (this.$parent.$options.name === 'iSelect') {
-                    if(this.optionsWidth == null) {
-                        this.width = parseInt(getStyle(this.$parent.$el, 'width'));
-                    } else {
+                    let width = parseInt(getStyle(this.$parent.$el, 'width'));
+                    if(this.optionsWidth != null && Number(this.optionsWidth) > width) {
                         this.width = this.optionsWidth;
+                    } else {
+                        this.width = width;
                     }
                 }
             },
