@@ -148,6 +148,14 @@
                     return oneOf(value, ['hard', 'soft']);
                 },
                 default: 'soft'
+            },
+            maxLengthOfRow: {
+                type: Number,
+                default: -1
+            },
+            splitArr: {
+                type: Array,
+                default: null
             }
         },
         data () {
@@ -274,11 +282,149 @@
                 this.$emit('input', '');
                 this.setCurrentValue('');
                 this.$emit('on-change', e);
-            }
+            },
+            formatValue (value, sprlitArrs, maxLengthOfRow) {
+                let newValue = '';
+                let line_arr = value.split('\n');
+
+                for(let i=0; i<line_arr.length; i++){
+                    let tempLine = line_arr[i];
+                    if(tempLine.length > this.maxLengthOfRow) {
+                        debugger;
+                        let tempSplitLineArr = this.splitLine(tempLine, sprlitArrs);
+
+                        if(i !== (line_arr.length-1)) {
+                            newValue = newValue + this.formatLine(tempSplitLineArr) + '\n';
+                        }else {
+                            newValue = newValue + this.formatLine(tempSplitLineArr);
+                        }
+                        console.log(tempSplitLineArr);
+                    }else {
+                        if (i === (line_arr.length-1)) {
+                            newValue = newValue + tempLine
+                        }else {
+                            newValue = newValue + tempLine + '\n';
+                        }
+                    }
+                }
+
+                return newValue;
+            },
+            formatLine (lineArr) {
+                let targetStr = '';
+                let oneLine = '';
+
+                for(let i=0; i<lineArr.length; i++){
+                    let tempStr = lineArr[i];
+                    //单个单词长度大于maxLengthOfRow，将的当个单词再次切分
+                    if (tempStr.length > this.maxLengthOfRow) {
+                        oneLine === ''? targetStr = targetStr : targetStr = targetStr + oneLine + '\n';
+                        let wordSplitNum = Math.ceil(tempStr.length/this.maxLengthOfRow);
+                        for (let j = 0; j < wordSplitNum; j++) {
+                            if (j !== (wordSplitNum -1)) {
+                                oneLine = tempStr.substring(j * this.maxLengthOfRow, (j+1) * this.maxLengthOfRow);
+                                targetStr = targetStr + oneLine + '\n';
+                                oneLine = '';
+                            }else {
+                                oneLine = tempStr.substring(j * this.maxLengthOfRow, tempStr.length);
+                            }
+                        }
+                    }else {
+                        if((oneLine.length + lineArr[i].length) > this.maxLengthOfRow) {
+                            targetStr = targetStr + oneLine + '\n';
+                            oneLine = lineArr[i];
+                        }else {
+                            oneLine = oneLine + lineArr[i];
+                        }
+                    }
+                }
+
+                if(oneLine !== '') {
+                    targetStr = targetStr + oneLine;
+                }
+
+                return targetStr;
+            },
+            splitLine (line, sprlitArrs) {
+                let parts = new Array();
+                let startIndex = 0;
+
+                while (true)
+                {
+                    let index = this.indexOfAny(line, sprlitArrs, startIndex, line.length);
+
+                    if (index === -1) {
+                        parts.push(line.substring(startIndex));
+                        return parts;
+                    }
+
+                    let word = line.substring(startIndex, index);
+                    let nextChar = line.charAt(index);
+                    // Dashes and the likes should stick to the word occuring before it. Whitespace doesn't have to.
+                    if (nextChar === ' ')
+                    {
+                        parts.push(word);
+                        parts.push(nextChar);
+                    }else {
+                        parts.push(word + nextChar);
+                    }
+
+                    startIndex = index + 1;
+                }
+
+            },
+            indexOfAny (str, anyOf /*Array*/, startIndex /*uint*/, count /*int*/) /*int*/ {
+
+                startIndex = isNaN(startIndex) ? 0 : startIndex;
+                if (startIndex < 0) {
+                    startIndex = 0;
+                }
+
+                if (this == null || this == "") return -1;
+                count = isNaN(count) ? -1 : ((count >= 0) ? count : -1);
+                var l = str.length;
+                var endIndex /*int*/;
+                if ((count < 0) || (count > l - startIndex)) {
+                    endIndex = l;
+                } else {
+                    endIndex = startIndex + count;
+                }
+
+                if (anyOf == null || anyOf == undefined) return -1;
+
+                for (var i = startIndex; i <= endIndex ; i++) {
+                    var curtxt = str.substring(startIndex, i);
+
+                    var allindex = [];
+                    for (var j = 0; j < anyOf.length; j++) {
+                        var any = anyOf[j];
+                        var index = curtxt.indexOf('' + any);
+                        if (index > -1) {
+                            return index + startIndex;
+                        }
+                    }
+                }
+
+                return -1;
+
+            },
         },
         watch: {
             value (val) {
                 this.setCurrentValue(val);
+            },
+            currentValue (newVal, oldVal) {
+                if (newVal !== oldVal && newVal !== '' && this.type === 'textarea') {
+                    console.log("newVal !== oldVal");
+                    if(this.maxLengthOfRow !== undefined && this.maxLengthOfRow !== null && this.maxLengthOfRow > 0 &&
+                        this.splitArr !== undefined && this.splitArr !== null && this.splitArr.length > 0) {
+                        let formatedVal = this.formatValue(newVal, this.splitArr, this.maxLengthOfRow);
+                        this.setCurrentValue(formatedVal);
+                    }else {
+                        this.setCurrentValue(newVal);
+                    }
+                }else {
+                }
             }
         },
         mounted () {
