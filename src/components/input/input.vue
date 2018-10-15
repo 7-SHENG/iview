@@ -298,7 +298,7 @@
                         }else {
                             newValue = newValue + this.formatLine(tempSplitLineArr);
                         }
-                        console.log(tempSplitLineArr);
+                        // console.log(tempSplitLineArr);
                     }else {
                         if (i === (line_arr.length-1)) {
                             newValue = newValue + tempLine
@@ -415,7 +415,6 @@
             },
             currentValue (newVal, oldVal) {
                 if (newVal !== oldVal && newVal !== '' && this.type === 'textarea') {
-                    console.log("newVal !== oldVal");
                     if(this.maxLengthOfRow !== undefined && this.maxLengthOfRow !== null && this.maxLengthOfRow > 0 &&
                         this.splitArr !== undefined && this.splitArr !== null && this.splitArr.length > 0) {
                         let formatedVal = this.formatValue(newVal, this.splitArr, this.maxLengthOfRow);
