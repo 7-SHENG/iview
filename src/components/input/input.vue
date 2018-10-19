@@ -340,6 +340,9 @@
                 }
 
                 if(oneLine !== '') {
+                    if(oneLine.charAt(0) === ' '){
+                        oneLine = oneLine.replace(/(^\s*)/g, '');
+                    }
                     targetStr = targetStr + oneLine;
                 }
 
