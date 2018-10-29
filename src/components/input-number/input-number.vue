@@ -40,7 +40,7 @@
 <script>
     import { oneOf } from '../../utils/assist';
     import Emitter from '../../mixins/emitter';
-
+    import {BigNumber} from 'bignumber.js';
     const prefixCls = 'ivu-input-number';
     const iconPrefixCls = 'ivu-icon';
 
@@ -254,7 +254,7 @@
             },
             setValue (val, isInt) {
                 // 如果 step 是小数，且没有设置 precision，是有问题的
-                if (val && !isNaN(this.precision) && isInt === undefined) val = parseInt(Number(val)*Math.pow(10,this.precision))/Math.pow(10,this.precision);
+                if (val && !isNaN(this.precision) && isInt === undefined) val = new BigNumber(val.toString()).toFixed(this.precision, 1);
                 this.$nextTick(() => {
                     this.currentValue = val;
                     this.$emit('input', val);

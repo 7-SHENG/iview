@@ -42,6 +42,7 @@
     },
     "dependencies": {
         "async-validator": "^1.8.2",
+        "bignumber.js": "^7.2.1",
         "deepmerge": "^2.1.0",
         "element-resize-detector": "^1.1.14",
         "js-calendar": "^1.2.3",
