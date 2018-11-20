@@ -153,6 +153,10 @@
                 type: Number,
                 default: -1
             },
+            maxLengthSpecialRow: {
+                type: Array,
+                default: []
+            },
             splitArr: {
                 type: Array,
                 default: null
@@ -165,7 +169,8 @@
                 prepend: true,
                 append: true,
                 slotReady: false,
-                textareaStyles: {}
+                textareaStyles: {},
+                lineNum: 1
             };
         },
         computed: {
@@ -286,15 +291,18 @@
             formatValue (value, sprlitArrs, maxLengthOfRow) {
                 let newValue = '';
                 let line_arr = value.split('\n');
+                this.lineNum = 1;
 
                 for(let i=0; i<line_arr.length; i++){
                     let tempLine = line_arr[i];
-                    if(tempLine.length > this.maxLengthOfRow) {
+
+                    if(tempLine.length > this.getMaxLengthOfOneLine(this.lineNum)) {
                         debugger;
                         let tempSplitLineArr = this.splitLine(tempLine, sprlitArrs);
 
                         if(i !== (line_arr.length-1)) {
                             newValue = newValue + this.formatLine(tempSplitLineArr) + '\n';
+                            this.lineNum = this.lineNum + 1;
                         }else {
                             newValue = newValue + this.formatLine(tempSplitLineArr);
                         }
@@ -304,11 +312,20 @@
                             newValue = newValue + tempLine
                         }else {
                             newValue = newValue + tempLine + '\n';
+                            this.lineNum = this.lineNum + 1;
                         }
                     }
                 }
 
                 return newValue;
+            },
+            getMaxLengthOfOneLine(){
+                let maxlengthOneRow = this.maxLengthSpecialRow[this.lineNum];
+                if (maxlengthOneRow !== undefined && maxlengthOneRow !== null && !isNaN(maxlengthOneRow) && maxlengthOneRow > 0) {
+                    return maxlengthOneRow;
+                }else {
+                    return this.maxLengthOfRow;
+                }
             },
             formatLine (lineArr) {
                 let targetStr = '';
@@ -316,23 +333,26 @@
 
                 for(let i=0; i<lineArr.length; i++){
                     let tempStr = lineArr[i];
-                    //单个单词长度大于maxLengthOfRow，将的当个单词再次切分
-                    if (tempStr.length > this.maxLengthOfRow) {
+                    //单个单词长度大于maxLengthOfRow，将当个单词再次切分
+                    let tempMaxLengthOfOneLine = this.getMaxLengthOfOneLine(this.lineNum);
+                    if (tempStr.length > tempMaxLengthOfOneLine) {
                         oneLine === ''? targetStr = targetStr : targetStr = targetStr + oneLine + '\n';
-                        let wordSplitNum = Math.ceil(tempStr.length/this.maxLengthOfRow);
+                        let wordSplitNum = Math.ceil(tempStr.length/tempMaxLengthOfOneLine);
                         for (let j = 0; j < wordSplitNum; j++) {
                             if (j !== (wordSplitNum -1)) {
-                                oneLine = tempStr.substring(j * this.maxLengthOfRow, (j+1) * this.maxLengthOfRow);
+                                oneLine = tempStr.substring(j * tempMaxLengthOfOneLine, (j+1) * tempMaxLengthOfOneLine);
                                 targetStr = targetStr + oneLine + '\n';
+                                this.lineNum = this.lineNum + 1;
                                 oneLine = '';
                             }else {
-                                oneLine = tempStr.substring(j * this.maxLengthOfRow, tempStr.length);
+                                oneLine = tempStr.substring(j * tempMaxLengthOfOneLine, tempStr.length);
                             }
                         }
                     }else {
-                        if((oneLine.length + lineArr[i].length) > this.maxLengthOfRow) {
+                        if((oneLine.length + lineArr[i].length) > tempMaxLengthOfOneLine) {
                             targetStr = targetStr + oneLine + '\n';
-                            oneLine = lineArr[i];
+                            this.lineNum = this.lineNum + 1;
+                            oneLine = lineArr[i].replace(/(^\s*)/g, '');
                         }else {
                             oneLine = oneLine + lineArr[i];
                         }
