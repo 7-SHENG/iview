@@ -155,7 +155,7 @@
             },
             maxLengthSpecialRow: {
                 type: Array,
-                default: []
+                default: () => []
             },
             splitArr: {
                 type: Array,
