@@ -154,8 +154,8 @@
                 default: -1
             },
             maxLengthSpecialRow: {
-                type: Array,
-                default: () => []
+                type: Object,
+                default: () => {}
             },
             splitArr: {
                 type: Array,
