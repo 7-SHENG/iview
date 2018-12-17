@@ -187,7 +187,8 @@
             },
             precisionValue () {
                 // can not display 1.0
-                if(!this.currentValue) return this.currentValue;
+                //焦点移开的时候再去执行 toFixed方法
+                if(!this.currentValue || this.focused) return this.currentValue;
                 return this.precision ? this.currentValue.toFixed(this.precision) : this.currentValue;
             },
             formatterValue () {
