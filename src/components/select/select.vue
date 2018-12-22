@@ -316,6 +316,19 @@
                     return false;
                 }
                 this.visible = !this.visible;
+                // 打开列表后 上下方向键的起始选项为选中项
+                if (this.visible && this.model !== '') {
+                    for (let i = 0; i < this.options.length; i++) {
+                        if (this.model === this.options[i].value) {
+                            this.focusIndex = i + 1;
+                            // 滚动条定位
+                            this.$nextTick(() => {
+                                this.$refs.dropdown.$el.scrollTop = this.optionInstances[i].$el.offsetTop;
+                            });
+                            break;
+                        }
+                    }
+                }
             },
             hideMenu () {
                 this.visible = false;
@@ -853,7 +866,7 @@
                         this.$emit('on-query-change', val);
                     }
                     this.broadcastQuery(val);
-
+                    this.focusIndex = 0;
                     let is_hidden = true;
 
                     this.$nextTick(() => {
