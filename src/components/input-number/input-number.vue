@@ -204,6 +204,8 @@
                 e.preventDefault();
             },
             up (e) {
+                this.$refs.numberInput.blur();
+                this.$refs.numberInput.focus();
                 const targetVal = Number(e.target.value);
                 if (this.upDisabled && isNaN(targetVal)) {
                     return false;
@@ -211,6 +213,8 @@
                 this.changeStep('up', e);
             },
             down (e) {
+                this.$refs.numberInput.blur();
+                this.$refs.numberInput.focus();
                 const targetVal = Number(e.target.value);
                 if (this.downDisabled && isNaN(targetVal)) {
                     return false;
