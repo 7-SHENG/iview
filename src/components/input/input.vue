@@ -320,6 +320,10 @@
                 return newValue;
             },
             getMaxLengthOfOneLine(){
+                if (this.maxLengthSpecialRow === undefined || this.maxLengthSpecialRow === null){
+                    return this.maxLengthOfRow;
+                }
+
                 let maxlengthOneRow = this.maxLengthSpecialRow[this.lineNum];
                 if (maxlengthOneRow !== undefined && maxlengthOneRow !== null && !isNaN(maxlengthOneRow) && maxlengthOneRow > 0) {
                     return maxlengthOneRow;
