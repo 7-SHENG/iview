@@ -296,7 +296,7 @@
                 for(let i=0; i<line_arr.length; i++){
                     let tempLine = line_arr[i];
 
-                    if(tempLine.length > this.getMaxLengthOfOneLine(this.lineNum)) {
+                    if(this.getStrLength(tempLine) > this.getMaxLengthOfOneLine(this.lineNum)) {
                         debugger;
                         let tempSplitLineArr = this.splitLine(tempLine, sprlitArrs);
 
@@ -353,7 +353,7 @@
                             }
                         }
                     }else {
-                        if((oneLine.length + lineArr[i].length) > tempMaxLengthOfOneLine) {
+                        if((this.getStrLength(oneLine) + this.getStrLength(lineArr[i])) > tempMaxLengthOfOneLine) {
                             targetStr = targetStr + oneLine + '\n';
                             this.lineNum = this.lineNum + 1;
                             oneLine = lineArr[i].replace(/(^\s*)/g, '');
@@ -435,6 +435,13 @@
                 return -1;
 
             },
+            getStrLength(str){
+                if(/[':+?]/.test(str)){
+                    let matchLength = str.match(/[':+?]/g).length;
+                    return str.length + matchLength;
+                }
+                return str.length;
+            }
         },
         watch: {
             value (val) {
