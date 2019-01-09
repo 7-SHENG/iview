@@ -297,7 +297,6 @@
                     let tempLine = line_arr[i];
 
                     if(this.getStrLength(tempLine) > this.getMaxLengthOfOneLine(this.lineNum)) {
-                        debugger;
                         let tempSplitLineArr = this.splitLine(tempLine, sprlitArrs);
 
                         if(i !== (line_arr.length-1)) {
