@@ -35,6 +35,7 @@
                     :disabled="disabled"
                     :class="[prefixCls + '-input']"
                     :placeholder="showPlaceholder ? localePlaceholder : ''"
+
                     :style="inputStyle"
                     autocomplete="off"
                     spellcheck="false"
@@ -315,29 +316,17 @@
                     return false;
                 }
                 this.visible = !this.visible;
-                // 打开列表后 有选择项上下方向键的起始选项为选中项
-                if (this.visible && this.model !== '' && this.options.length > 0) {
-                    this.autoScroll();
-                }
-                // 不忽略默认定位时高亮第一项
-                if (this.visible && this.model === '' && this.options.length > 0) {
-                    this.findChild(child => {
-                        if (child.index === 1) {
-                            child.isFocus = true;
+                // 打开列表后 上下方向键的起始选项为选中项
+                if (this.visible && this.model !== '') {
+                    for (let i = 0; i < this.options.length; i++) {
+                        if (this.model === this.options[i].value) {
+                            this.focusIndex = i + 1;
+                            // 滚动条定位
+                            this.$nextTick(() => {
+                                this.$refs.dropdown.$el.scrollTop = this.optionInstances[i].$el.offsetTop;
+                            });
+                            break;
                         }
-                    });
-                    this.focusIndex = 1;
-                }
-            },
-            autoScroll() {
-                for (let i = 0; i < this.options.length; i++) {
-                    if (this.model === this.options[i].value) {
-                        this.focusIndex = i + 1;
-                        // 滚动条定位
-                        this.$nextTick(() => {
-                            this.$refs.dropdown.$el.scrollTop = this.optionInstances[i].$el.offsetTop;
-                        });
-                        break;
                     }
                 }
             },
@@ -877,15 +866,12 @@
                         this.$emit('on-query-change', val);
                     }
                     this.broadcastQuery(val);
+                    this.focusIndex = 0;
                     let is_hidden = true;
 
                     this.$nextTick(() => {
                         this.findChild((child) => {
                             if (!child.hidden) {
-                                if (is_hidden) {
-                                    child.isFocus = true;
-                                    this.focusIndex = child.index;
-                                }
                                 is_hidden = false;
                             }
                         });
