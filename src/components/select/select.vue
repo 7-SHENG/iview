@@ -296,11 +296,9 @@
                 this.broadcast('Drop', 'on-update-popper');
                 this.$nextTick(() => {
                     this.findChild(child => {
-                        if (child.index === 1) {
-                            child.isFocus = true;
-                            this.focusIndex = 1;
-                        }
+                        child.isFocus = child.index === 1;
                     });
+                    this.focusIndex = 1;
                 });
             },
             focus() {
@@ -323,31 +321,33 @@
                     return false;
                 }
                 this.visible = !this.visible;
+                this.setChooseOption()
+            },
+            setChooseOption() {
                 // 打开列表后 有选择项上下方向键的起始选项为选中项
-                if (this.visible && (this.model && this.model !== '') && this.options.length > 0) {
+                if (this.visible && (this.model && this.model !== '') && this.options.length > 0 && !this.autoComplete) {
                     this.autoScroll();
+                    return;
                 }
-                // 不忽略默认定位时高亮第一项
+                // 为空默认定位时高亮第一项
                 if (this.visible && (!this.model || this.model === '') && this.options.length > 0) {
                     this.findChild(child => {
-                        if (child.index === 1) {
-                            child.isFocus = true;
-                        }
+                        child.isFocus = child.index === 1;
                     });
                     this.focusIndex = 1;
                 }
             },
             autoScroll() {
-                for (let i = 0; i < this.options.length; i++) {
-                    if (this.model === this.options[i].value) {
-                        this.focusIndex = i + 1;
-                        // 滚动条定位
-                        this.$nextTick(() => {
-                            this.$refs.dropdown.$el.scrollTop = this.optionInstances[i].$el.offsetTop;
-                        });
-                        break;
+                this.focusIndex = 1;
+                this.findChild(child => {
+                    if(this.model === child.value) {
+                        child.isFocus = true;
+                        this.focusIndex = child.index;
+                        this.$refs.dropdown.$el.scrollTop = this.optionInstances[child.index].$el.offsetTop;
+                    } else {
+                        child.isFocus = false;
                     }
-                }
+                });
             },
             hideMenu () {
                 this.visible = false;
@@ -758,7 +758,7 @@
                 }
             },
             onQueryChange(query) {
-                if (query === '' && this.model !== '' && this.optionInstances.length > 0) {
+                if (query === '' && this.model && this.model !== '' && this.optionInstances.length > 0) {
                     this.autoScroll();
                 } else {
                     let firstChild = false;
