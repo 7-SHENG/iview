@@ -324,11 +324,11 @@
                 }
                 this.visible = !this.visible;
                 // 打开列表后 有选择项上下方向键的起始选项为选中项
-                if (this.visible && this.model !== '' && this.options.length > 0) {
+                if (this.visible && (this.model && this.model !== '') && this.options.length > 0) {
                     this.autoScroll();
                 }
                 // 不忽略默认定位时高亮第一项
-                if (this.visible && this.model === '' && this.options.length > 0) {
+                if (this.visible && (!this.model || this.model === '') && this.options.length > 0) {
                     this.findChild(child => {
                         if (child.index === 1) {
                             child.isFocus = true;
