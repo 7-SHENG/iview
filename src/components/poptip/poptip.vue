@@ -17,7 +17,7 @@
                 :class="popperClasses"
                 :style="styles"
                 ref="popper"
-                v-show="visible"
+                v-show="visible && show"
                 @click="handleTransferClick"
                 @mouseenter="handleMouseenter"
                 @mouseleave="handleMouseleave"
@@ -62,6 +62,10 @@
         directives: { clickoutside, TransferDom },
         components: { iButton },
         props: {
+            show: {
+                type: Boolean,
+                default: true
+            },
             trigger: {
                 validator (value) {
                     return oneOf(value, ['click', 'focus', 'hover']);
