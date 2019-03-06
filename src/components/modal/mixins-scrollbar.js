@@ -1,4 +1,4 @@
-// used for Modal & $Spin & Drawer
+// used for Modal & $Spin
 import { getScrollBarSize } from '../../utils/assist';
 export default {
     methods: {
@@ -12,10 +12,6 @@ export default {
             if (this.bodyIsOverflowing) {
                 this.scrollBarWidth = getScrollBarSize();
             }
-        },
-        checkMaskInVisible () {
-            let masks = document.getElementsByClassName('ivu-modal-mask') || [];
-            return Array.from(masks).every(m => m.style.display === 'none' || m.classList.contains('fade-leave-to'));
         },
         setScrollBar () {
             if (this.bodyIsOverflowing && this.scrollBarWidth !== undefined) {
@@ -31,10 +27,8 @@ export default {
             document.body.style.overflow = 'hidden';
         },
         removeScrollEffect() {
-            if (this.checkMaskInVisible()) {
-                document.body.style.overflow = '';
-                this.resetScrollBar();
-            }
+            document.body.style.overflow = '';
+            this.resetScrollBar();
         }
     }
 };
