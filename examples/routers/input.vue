@@ -1,7 +1,7 @@
 <template>
     <div style="width: 500px;margin: 100px;">
         {{ value6 }}
-        <Input v-model="value5" type="textarea" placeholder="Enter something..." :max-length-of-row="34" :split-arr="splitArr" :max-length-special-row="maxLengthOneRow"></Input>
+        <Input v-model="value5" type="textarea" placeholder="Enter something..." :max-length-of-row="34" :split-arr="splitArr" :max-length-special-row="maxLengthOneRow" @on-change="handleChange" @on-focus="handleFocus"></Input>
         <Input v-model="value6" type="textarea" :rows="4" placeholder="Enter something..."></Input>
     </div>
 </template>
@@ -23,6 +23,21 @@
                     6: 33,
                     7: 34
                 }
+            }
+        },
+        methods: {
+            handleChange(event) {
+                console.log("event:", event);
+                console.log("value:", this.value5);
+            },
+            handleFocus() {
+                console.log("value:", this.value5);
+            }
+        },
+        watch: {
+            value5 (newVal, oldVal) {
+                console.log("oldVal:", oldVal);
+                console.log("newVal:", newVal);
             }
         }
     }

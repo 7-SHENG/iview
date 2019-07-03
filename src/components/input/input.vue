@@ -451,6 +451,7 @@
                     if(this.maxLengthOfRow !== undefined && this.maxLengthOfRow !== null && this.maxLengthOfRow > 0 &&
                         this.splitArr !== undefined && this.splitArr !== null && this.splitArr.length > 0) {
                         let formatedVal = this.formatValue(newVal, this.splitArr, this.maxLengthOfRow);
+                        this.$emit('input', formatedVal);
                         this.setCurrentValue(formatedVal);
                     }else {
                         this.setCurrentValue(newVal);
